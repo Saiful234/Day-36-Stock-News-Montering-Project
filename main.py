@@ -1,9 +1,13 @@
 import os
 import requests
 from twilio.rest import Client
+import smtplib
 
 STOCK_NAME = "TSLA"
 COMPANY_NAME = "Tesla Inc"
+
+MY_EMAIL = "bandotech46@gmail.com"
+MY_PASSWORD = "hdyfxydtypgmmvnd"
 
 twilio_account_sid = "AC54b0c580e051f106a1beb92bcfeb10d0"
 twilio_auth_token = "96e20e75f26731c14818aa264f264985"
@@ -11,7 +15,7 @@ twilio_auth_token = "96e20e75f26731c14818aa264f264985"
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 
-    ## STEP 1:When stock price increase/decreases by 5% between yesterday and the day before yesterday then print("Get News").
+##When stock price increase/decreases by 5% between yesterday and the day before yesterday then print("Get News").
 
 stock_api_key = "W4KLWXM5RBFPORML"
 news_api_key = "20153cd172e14a4c90070566ed25e532"
@@ -36,7 +40,7 @@ print(yesterday_close_price)
 day_before_close = float(yesterday_close[1]["4. close"])
 print(day_before_close)
 
-#Step 2:Find the positive difference between 1 and 2. e.g. 40 - 20 = -20, but the positive difference is 20.
+#Find the positive difference between 1 and 2. e.g. 40 - 20 = -20, but the positive difference is 20.
 
 positive_Diff = yesterday_close_price-day_before_close
 
@@ -65,15 +69,23 @@ if diff_percentage > 5:
     formatted_news_list = [f"{STOCK_NAME}: {up_down}{diff_percentage}% \nHeadline: {article['title']}. " \
                            f"\nBrief: {article['description']}" for article in three_articles]
 
-    client = Client(twilio_account_sid, twilio_auth_token)
-    for article in formatted_news_list:
-        message = client.messages.create(
-            body=article,
-            from_='+15017122661',
-            to='+919489151903'
+    # client = Client(twilio_account_sid, twilio_auth_token)
+    # for article in formatted_news_list:
+    #     message = client.messages.create(
+    #         body=article,
+    #         from_='+15017122661',
+    #         to='+919489151903'
+    #         )
+    #     print(message.status)
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=120) as connection:
+        connection.starttls()
+        connection.login(MY_EMAIL, MY_PASSWORD)
+        for article in formatted_news_list:
+            connection.sendmail(
+                from_addr=MY_EMAIL,
+                to_addrs=MY_EMAIL,
+                msg=f"Subject:Tesla Stock NEWS \n\n{article}",
             )
-        print(message.status)
-
 
 
 
